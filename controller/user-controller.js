@@ -1,43 +1,7 @@
 const url = require('url');
+const faker = require('faker');
+const bcrypt = require('bcryptjs');
 var User = require('../models/model');
-
-// create and save new user
-exports.create = (req, res) => {
-  // validate request
-  if (!req.body) {
-    res
-      .status(400)
-      .send({ message: 'There is no data in the create request!' });
-    return;
-  }
-  // new user
-  const user = new User({
-    name: req.body.name,
-    email: req.body.email,
-    phone: req.body.phone,
-    gender: req.body.gender,
-  });
-
-  // save user in the database
-  user
-    .save(user)
-    .then((data) => {
-      //res.send(data)
-      res.redirect(
-        url.format({
-          pathname: '/api/users',
-          query: {
-            id: user.id,
-          },
-        })
-      );
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || 'Some error occurred while creating a new user',
-      });
-    });
-};
 
 // Retrieve and return a single user
 exports.find = (req, res) => {
@@ -139,4 +103,27 @@ exports.delete = (req, res) => {
         message: 'Could not delete User with id=' + id,
       });
     });
+};
+
+// Seeding data in user collection
+exports.seeding = async (req, res) => {
+  for (var i = 0; i < 10; i++) {
+    const name = faker.name.findName();
+    var user = new User({
+      name,
+      username: name,
+      phone: faker.phone.phoneNumber(),
+      gender: 'male',
+      email: faker.internet.email(name),
+      password: await bcrypt.hash(name, 10),
+    });
+    user
+      .save()
+      .then(() => {
+        res.send('Database users seeded! :)');
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 };
