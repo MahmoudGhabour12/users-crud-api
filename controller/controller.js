@@ -73,6 +73,20 @@ exports.find = (req, res) => {
   }
 };
 
+// Retrieve and return all users
+exports.findAll = (req, res) => {
+  User.find()
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || 'Error Occurred while retrieving user information',
+      });
+    });
+};
+
 // Update a new identified user by user id
 exports.update = (req, res) => {
   if (!req.body) {
